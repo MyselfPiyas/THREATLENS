@@ -1,0 +1,32 @@
+# Dependencies and build output
+node_modules/
+frontend/.next/
+frontend/.next-*/
+frontend/out/
+frontend/build/
+backend/.venv/
+backend/__pycache__/
+backend/.pytest_cache/
+backend/.ruff_cache/
+*.py[cod]
+*.tsbuildinfo
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+frontend/.env.local
+frontend/.env.*.local
+backend/.env
+
+# Tooling and operating system files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# Python packaging
+backend/dist/
+backend/*.egg-info/
+

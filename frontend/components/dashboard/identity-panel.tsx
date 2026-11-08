@@ -1,0 +1,20 @@
+"use client";
+
+import { Fingerprint, LoaderCircle, ShieldAlert } from "lucide-react";
+import { useIdentityAnalysis } from "@/hooks/use-identity-analysis";
+import { ErrorNotice, Panel, PanelTitle } from "@/components/dashboard/ui";
+
+export function IdentityPanel({ url, scanId }: { url: string; scanId?: string }) {
+  const { result, busy, error, analyze } = useIdentityAnalysis();
+  const similarity = Math.round((result?.similarity_score ?? 0) * 100);
+  return <Panel className="p-5 sm:p-6" id="identity-crisis">
+    <PanelTitle title="Identity crisis analysis" detail="Brand comparison and phishing signals" />
+    {!result && !error ? <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-dashed border-border p-4"><div className="flex items-start gap-3"><span className="grid size-9 place-items-center rounded-xl border border-accent/15 bg-accent/[0.08] text-accent"><Fingerprint className="size-4" /></span><p className="max-w-xl text-[10px] leading-5 text-muted-foreground">Compare this hostname with configured brands. Similarity is a review signal and does not prove impersonation.</p></div><button type="button" onClick={() => void analyze(url, scanId)} disabled={busy} className="inline-flex h-9 items-center gap-2 rounded-lg bg-accent px-3 text-[10px] font-bold text-[#06111c] disabled:opacity-60">{busy ? <LoaderCircle className="size-3.5 animate-spin" /> : <ShieldAlert className="size-3.5" />} {busy ? "Analyzing…" : "Analyze identity"}</button></div> : null}
+    {error ? <div className="mt-4"><ErrorNotice detail={error} /></div> : null}
+    {result ? <div className="mt-4 space-y-4">
+      <div className="grid gap-3 sm:grid-cols-4"><div className="rounded-xl border border-border bg-background/35 p-3"><p className="text-[8px] uppercase tracking-[0.12em] text-muted-foreground">Claimed brand</p><p className="mt-2 text-[12px] font-semibold">{result.claimed_brand ?? "None supplied"}</p></div><div className="rounded-xl border border-border bg-background/35 p-3"><p className="text-[8px] uppercase tracking-[0.12em] text-muted-foreground">Reference domain</p><p className="mt-2 break-all text-[12px] font-semibold">{result.brand_domain ?? "No match"}</p></div><div className="rounded-xl border border-border bg-background/35 p-3"><p className="text-[8px] uppercase tracking-[0.12em] text-muted-foreground">Actual domain</p><p className="mt-2 break-all text-[12px] font-semibold">{result.actual_domain}</p></div><div className="rounded-xl border border-border bg-background/35 p-3"><p className="text-[8px] uppercase tracking-[0.12em] text-muted-foreground">Similarity</p><div className="mt-2 flex items-center gap-2"><div className="h-2 flex-1 overflow-hidden rounded-full bg-border"><div className="h-full rounded-full bg-accent" style={{ width: `${similarity}%` }} /></div><span className="text-[11px] font-semibold">{similarity}%</span></div></div></div>
+      <div className="rounded-xl border border-accent/15 bg-accent/[0.04] p-4"><div className="flex flex-wrap items-center gap-2"><span className="rounded-full border border-accent/25 px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.1em] text-accent">{result.detection_category}</span><span className="text-[9px] text-muted-foreground">Confidence {Math.round(result.confidence * 100)}%</span></div><p className="mt-3 text-[10px] leading-5 text-muted-foreground">{result.explanation}</p></div>
+      <div className="grid gap-3 sm:grid-cols-2"><div><p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Suspicious characters</p><p className="mt-2 text-[10px] text-foreground">{result.suspicious_characters.length ? result.suspicious_characters.join(" · ") : "None observed"}</p></div><div><p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Evidence</p><ul className="mt-2 space-y-1 text-[10px] leading-4 text-muted-foreground">{result.evidence.map((item) => <li key={item}>• {item}</li>)}</ul></div></div>
+    </div> : null}
+  </Panel>;
+}
