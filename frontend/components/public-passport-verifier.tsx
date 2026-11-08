@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "@/lib/runtime-config";
 
 export function PublicPassportVerifier() {
   const [id, setId] = useState("");
@@ -17,8 +18,7 @@ export function PublicPassportVerifier() {
   async function verify() {
     setLoading(true); setError(""); setResult(null);
     try {
-      const base = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api/v1").replace(/\/+$/, "");
-      const response = await fetch(`${base}/public/passports/${encodeURIComponent(id.trim())}/verify`, { cache: "no-store" });
+      const response = await fetch(`${API_BASE_URL}/public/passports/${encodeURIComponent(id.trim())}/verify`, { cache: "no-store" });
       const payload = await response.json().catch(() => null);
       if (!response.ok) throw new Error(typeof payload?.detail === "string" ? payload.detail : `Verification returned HTTP ${response.status}.`);
       setResult(payload);

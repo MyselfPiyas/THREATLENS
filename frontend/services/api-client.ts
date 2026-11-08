@@ -1,13 +1,9 @@
 import type { HealthResponse, IdentityResult, IntelligenceIndicator, IntelligenceOverview, MessageAnalysis, QrAnalysis, ScamDnaGraph, ScanEvent, ScanFinding, ScanRecord, ScanReport, SecurityHeadersResult, TlsResult, UrlScanStatus } from "@/types/api";
+import { API_BASE_URL } from "@/lib/runtime-config";
 
 type BackendHealthResult =
   | { ok: true; data: HealthResponse }
   | { ok: false; error: string };
-
-function getApiBaseUrl(): string {
-  const configuredUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
-  return (configuredUrl || "http://localhost:8001/api/v1").replace(/\/+$/, "");
-}
 
 export type AcceptedUrlScan = { scan_id: string; status: "queued"; status_url: string };
 export type ScanProgress = { scan_id: string; status: UrlScanStatus; risk_level: string; risk_score: number; summary: string };
@@ -15,7 +11,7 @@ export type ScanProgress = { scan_id: string; status: UrlScanStatus; risk_level:
 async function authenticatedRequest<T>(path: string, accessToken: string): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${getApiBaseUrl()}${path}`, {
+    response = await fetch(`${API_BASE_URL}${path}`, {
       method: "GET",
       cache: "no-store",
       headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
@@ -41,7 +37,7 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
 export async function submitUrlScan(url: string, accessToken: string): Promise<AcceptedUrlScan> {
   let response: Response;
   try {
-    response = await fetch(`${getApiBaseUrl()}/scans/url`, {
+    response = await fetch(`${API_BASE_URL}/scans/url`, {
       method: "POST",
       cache: "no-store",
       headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json", Accept: "application/json" },
@@ -85,7 +81,7 @@ export async function getUrlScanReport(scanId: string, accessToken: string): Pro
 export async function analyzeWebsiteIdentity(url: string, accessToken: string, scanId?: string): Promise<IdentityResult> {
   let response: Response;
   try {
-    response = await fetch(`${getApiBaseUrl()}/analyze/identity`, {
+    response = await fetch(`${API_BASE_URL}/analyze/identity`, {
       method: "POST", cache: "no-store",
       headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({ url, ...(scanId ? { scan_id: scanId } : {}) }), signal: AbortSignal.timeout(10000),
@@ -101,7 +97,7 @@ export async function analyzeWebsiteIdentity(url: string, accessToken: string, s
 async function postAnalysis<T>(path: string, url: string, accessToken: string, scanId?: string): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${getApiBaseUrl()}${path}`, { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ url, ...(scanId ? { scan_id: scanId } : {}) }), signal: AbortSignal.timeout(15000) });
+    response = await fetch(`${API_BASE_URL}${path}`, { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ url, ...(scanId ? { scan_id: scanId } : {}) }), signal: AbortSignal.timeout(15000) });
   } catch { throw new Error("Could not reach the THREATLENS API. Check that the backend is running."); }
   return parseApiResponse<T>(response);
 }
@@ -116,7 +112,7 @@ export function analyzeSecurityHeaders(url: string, accessToken: string, scanId?
 
 export async function analyzeMessage(content: string, accessToken: string, allowLlm = false): Promise<MessageAnalysis> {
   let response: Response;
-  try { response = await fetch(`${getApiBaseUrl()}/analyze/message`, { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ content, allow_llm: allowLlm }), signal: AbortSignal.timeout(15000) }); }
+  try { response = await fetch(`${API_BASE_URL}/analyze/message`, { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ content, allow_llm: allowLlm }), signal: AbortSignal.timeout(15000) }); }
   catch { throw new Error("Could not reach the THREATLENS API. Check that the backend is running."); }
   return parseApiResponse<MessageAnalysis>(response);
 }
@@ -124,7 +120,7 @@ export async function analyzeMessage(content: string, accessToken: string, allow
 export async function analyzeQr(file: File, accessToken: string): Promise<QrAnalysis> {
   const form = new FormData(); form.append("file", file);
   let response: Response;
-  try { response = await fetch(`${getApiBaseUrl()}/analyze/qr`, { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" }, body: form, signal: AbortSignal.timeout(20000) }); }
+  try { response = await fetch(`${API_BASE_URL}/analyze/qr`, { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" }, body: form, signal: AbortSignal.timeout(20000) }); }
   catch { throw new Error("Could not reach the THREATLENS API. Check that the backend is running."); }
   return parseApiResponse<QrAnalysis>(response);
 }
@@ -136,7 +132,7 @@ export function analyzeScamDna(scanId: string, accessToken: string): Promise<Sca
 
 async function postJson<T>(path: string, body: unknown, accessToken: string): Promise<T> {
   let response: Response;
-  try { response = await fetch(`${getApiBaseUrl()}${path}`, { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(15000) }); }
+  try { response = await fetch(`${API_BASE_URL}${path}`, { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(15000) }); }
   catch { throw new Error("Could not reach the THREATLENS API. Check that the backend is running."); }
   return parseApiResponse<T>(response);
 }
@@ -151,12 +147,12 @@ function isScanRecord(value: unknown): value is ScanRecord {
 }
 
 export function getApiDocsUrl(): string {
-  return `${getApiBaseUrl().replace(/\/api\/v1$/, "")}/docs`;
+  return `${API_BASE_URL.replace(/\/api\/v1$/, "")}/docs`;
 }
 
 export async function getBackendHealth(): Promise<BackendHealthResult> {
   try {
-    const response = await fetch(`${getApiBaseUrl()}/health`, {
+    const response = await fetch(`${API_BASE_URL}/health`, {
       cache: "no-store",
       signal: AbortSignal.timeout(3000),
     });

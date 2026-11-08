@@ -4,6 +4,7 @@ frontend/.next/
 frontend/.next-*/
 frontend/out/
 frontend/build/
+frontend/build-verification-*/
 backend/.venv/
 backend/__pycache__/
 backend/.pytest_cache/

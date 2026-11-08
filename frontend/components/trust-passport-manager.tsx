@@ -4,11 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import { Copy, Download, RefreshCw, ShieldCheck, Upload } from "lucide-react";
 import { EmptyState, ErrorNotice } from "@/components/dashboard/ui";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { API_BASE_URL } from "@/lib/runtime-config";
 
 type Passport = { id: string; scan_id: string; report_hash: string; verification_status: string; created_at: string; public_sharing_enabled: boolean };
 type Scan = { id: string; target: string; status: string; created_at: string };
 
-const API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api/v1").replace(/\/+$/, "");
+const API = API_BASE_URL;
 
 export function TrustPassportManager() {
   const [scans, setScans] = useState<Scan[]>([]);

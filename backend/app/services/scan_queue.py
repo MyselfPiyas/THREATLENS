@@ -59,8 +59,6 @@ class ScanQueue:
                 await self._process(job)
             except asyncio.CancelledError:
                 logger.info("URL scan worker cancelled", extra={"scan_id": str(job.scan_id)})
-                if self._stopping:
-                    raise
                 store = ScanStore()
                 try:
                     await store.update_scan(job.scan_id, {
