@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Copy, Download, RefreshCw, ShieldCheck } from "lucide-react";
+import { Copy, Download, RefreshCw, ShieldCheck, Upload } from "lucide-react";
 import { EmptyState, ErrorNotice } from "@/components/dashboard/ui";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -67,6 +67,21 @@ export function TrustPassportManager() {
     finally { setBusy(""); }
   }
 
+  async function verifyUpload(id: string, file: File) {
+    const isJson = file.type === "application/json" || file.name.toLowerCase().endsWith(".json");
+    if (!isJson) { setError("Choose a JSON passport report."); return; }
+    if (file.size > 1024 * 1024) { setError("Passport JSON must be 1 MB or smaller."); return; }
+    setBusy(`upload-${id}`); setError(""); setNotice("");
+    try {
+      const form = new FormData();
+      form.append("file", file, file.name);
+      const result = await request(`/passports/${id}/verify-upload`, { method: "POST", body: form });
+      setNotice(result.integrity_match ? "Uploaded report matches the stored SHA-256 reference." : "Tamper detected: uploaded report does not match the stored SHA-256 reference.");
+      await refresh();
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Uploaded report verification failed."); }
+    finally { setBusy(""); }
+  }
+
   async function share(id: string, enabled: boolean) {
     setBusy(id); setError(""); setNotice("");
     try {
@@ -122,6 +137,10 @@ export function TrustPassportManager() {
         <button onClick={() => verify(record.id)} disabled={!!busy} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-3 text-[9px] hover:border-accent/40 disabled:opacity-50"><RefreshCw className="size-3" /> Verify</button>
         <button onClick={() => download(record.id, "json")} disabled={!!busy} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-3 text-[9px] disabled:opacity-50"><Download className="size-3" /> JSON</button>
         <button onClick={() => download(record.id, "pdf")} disabled={!!busy} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border px-3 text-[9px] disabled:opacity-50"><Download className="size-3" /> PDF</button>
+        <label className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 text-[9px] hover:border-accent/40 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50" aria-label="Verify a downloaded JSON report">
+          <Upload className="size-3" /> {busy === `upload-${record.id}` ? "Checking…" : "Verify JSON"}
+          <input type="file" accept=".json,application/json" className="sr-only" disabled={!!busy} onChange={(event) => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ""; if (file) void verifyUpload(record.id, file); }} />
+        </label>
         {record.public_sharing_enabled ? <><button onClick={() => share(record.id, true)} disabled={!!busy} className="h-8 rounded-lg border border-accent/30 px-3 text-[9px] text-accent disabled:opacity-50">{shareLinks[record.id] ? "Rotate link" : "Generate link"}</button><button onClick={() => share(record.id, false)} disabled={!!busy} className="h-8 rounded-lg border border-warning/30 px-3 text-[9px] text-warning disabled:opacity-50">Revoke public link</button></> : <button onClick={() => share(record.id, true)} disabled={!!busy} className="h-8 rounded-lg border border-accent/30 px-3 text-[9px] text-accent disabled:opacity-50">Enable public link</button>}
       </div>
       {shareLinks[record.id] ? <div className="mt-3 flex flex-col gap-2 sm:flex-row"><input aria-label="Public verification link" readOnly value={shareLinks[record.id]} className="min-h-9 min-w-0 flex-1 rounded-lg border border-border bg-background px-2 text-[9px]"/><button onClick={() => void copy(shareLinks[record.id])} className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-border px-3 text-[9px]"><Copy className="size-3"/> Copy link</button></div> : null}

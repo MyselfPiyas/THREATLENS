@@ -9,7 +9,7 @@ import { DEMO_RISK_DISTRIBUTION } from "@/lib/demo/dashboard-demo";
 
 function Metric({ title, value, note, icon: Icon, tone = "blue" }: { title: string; value: string; note: string; icon: LucideIcon; tone?: "blue" | "orange" | "red" | "green" | "neutral" }) {
   const tones = { blue: "bg-accent/10 text-accent", orange: "bg-warning/10 text-warning", red: "bg-negative/10 text-negative", green: "bg-positive/10 text-positive", neutral: "bg-panel-raised text-muted-foreground" };
-  return <div className="rounded-xl border border-border/90 bg-panel/75 p-4 transition hover:border-accent/20 sm:p-5"><div className="flex items-start justify-between gap-2"><span className="text-[10px] font-medium text-muted-foreground">{title}</span><span className={`grid size-8 place-items-center rounded-lg ${tones[tone]}`}><Icon className="size-4" /></span></div><p className="mt-4 text-[26px] font-semibold tracking-[-0.04em] tabular-nums">{value}</p><p className="mt-1 text-[9px] leading-4 text-muted-foreground">{note}</p></div>;
+  return <div className="glass-panel glass-interactive rounded-xl border border-border/90 bg-panel/75 p-4 sm:p-5"><div className="flex items-start justify-between gap-2"><span className="text-[10px] font-medium text-muted-foreground">{title}</span><span className={`grid size-8 place-items-center rounded-lg ${tones[tone]}`}><Icon className="size-4" /></span></div><p className="mt-4 text-[26px] font-semibold tracking-[-0.04em] tabular-nums">{value}</p><p className="mt-1 text-[9px] leading-4 text-muted-foreground">{note}</p></div>;
 }
 
 export default async function DashboardPage() {

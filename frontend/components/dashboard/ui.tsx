@@ -27,7 +27,7 @@ export function PageHeading({ eyebrow, title, description, action }: { eyebrow: 
 }
 
 export function Panel({ children, className = "", id }: { children: ReactNode; className?: string; id?: string }) {
-  return <section id={id} className={`rounded-2xl border border-border/90 bg-panel/80 shadow-[0_12px_36px_rgba(0,0,0,0.12)] ${className}`}>{children}</section>;
+  return <section id={id} className={`glass-panel glass-interactive rounded-2xl border border-border/90 bg-panel/80 ${className}`}>{children}</section>;
 }
 
 export function PanelTitle({ title, detail, action }: { title: string; detail?: string; action?: ReactNode }) {

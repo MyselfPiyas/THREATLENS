@@ -1,132 +1,35 @@
-import { ArrowUpRight, Check, CircleDashed, Database, Fingerprint, Shield, ShieldCheck, Wifi } from "lucide-react";
+import { ArrowUpRight, Check, CircleDashed, Database, Fingerprint, Globe2, LockKeyhole, ScanSearch, Shield, ShieldCheck, Wifi } from "lucide-react";
 import Link from "next/link";
 import { getApiDocsUrl, getBackendHealth } from "@/services/api-client";
 import { getSupabaseEnvironmentStatus } from "@/lib/supabase/config";
-import { StatusCard } from "@/components/status-card";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
-  const [api, authConfigured] = await Promise.all([
-    getBackendHealth(),
-    Promise.resolve(getSupabaseEnvironmentStatus()),
-  ]);
+function ReadinessCard({ icon: Icon, title, detail, state, label }: { icon: typeof Shield; title: string; detail: string; state: "ready" | "offline" | "setup"; label: string }) {
+  const color = state === "ready" ? "text-[#7de0b2]" : state === "offline" ? "text-[#ff8d9b]" : "text-[#ffd47a]";
+  return <article className="landing-card landing-card-hover rounded-[22px] border border-white/[0.12] bg-white/[0.055] p-5 backdrop-blur-xl"><div className="flex items-start justify-between gap-4"><span className="grid size-10 place-items-center rounded-xl border border-white/[0.14] bg-white/[0.08] text-white/70"><Icon className="size-[18px]" aria-hidden="true" /></span><span className={`inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-black/20 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] ${color}`}><span className="size-1.5 rounded-full bg-current" />{label}</span></div><h2 className="mt-5 text-sm font-semibold text-white">{title}</h2><p className="mt-2 min-h-10 text-xs leading-5 text-white/55">{detail}</p></article>;
+}
 
+function ThreatOrbit() {
+  return <div className="threat-stage" aria-label="Animated threat intelligence visualization" role="img"><div className="threat-halo threat-halo-one" /><div className="threat-halo threat-halo-two" /><div className="threat-orbit threat-orbit-one"><span className="threat-node node-cyan" /><span className="threat-node node-blue" /></div><div className="threat-orbit threat-orbit-two"><span className="threat-node node-red" /><span className="threat-node node-purple" /></div><div className="threat-core-wrap"><div className="threat-core-shadow" /><div className="threat-core"><ShieldCheck className="size-16 text-[#8ce9ff]" strokeWidth={1.15} /><span className="mt-3 text-[9px] font-semibold uppercase tracking-[0.3em] text-white/55">Threat graph</span></div></div><div className="threat-chip chip-top"><ScanSearch className="size-3.5 text-[#8ce9ff]" /> LIVE SIGNALS</div><div className="threat-chip chip-bottom"><LockKeyhole className="size-3.5 text-[#7de0b2]" /> EVIDENCE-BOUND</div></div>;
+}
+
+export default async function HomePage() {
+  const [api, authConfigured] = await Promise.all([getBackendHealth(), Promise.resolve(getSupabaseEnvironmentStatus())]);
   const apiConnected = api.ok;
   const backendSupabaseConfigured = api.ok && api.data.supabase_configured;
   const scanPersistenceConfigured = api.ok && api.data.scan_persistence_configured === true;
   const readyCount = Number(apiConnected) + Number(authConfigured) + Number(backendSupabaseConfigured) + Number(scanPersistenceConfigured);
 
-  return (
-    <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col px-5 sm:px-8 lg:px-12">
-      <header className="flex h-[76px] items-center justify-between border-b border-border/80">
-        <a href="#overview" className="group flex items-center gap-3" aria-label="THREATLENS home">
-          <span className="grid size-9 place-items-center rounded-xl border border-accent/25 bg-accent/10 text-accent shadow-[0_0_28px_rgba(89,183,255,0.12)]">
-            <Shield className="size-[18px]" aria-hidden="true" />
-          </span>
-          <span className="text-[13px] font-bold tracking-[0.2em] text-foreground">THREATLENS</span>
-        </a>
-        <div className="flex items-center gap-4">
-          <div className="hidden items-center gap-3 rounded-full border border-border bg-panel/80 px-3.5 py-2 sm:flex">
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-30" />
-              <span className="relative inline-flex size-2 rounded-full bg-accent" />
-            </span>
-            <span className="text-[11px] font-medium tracking-wide text-muted-foreground">URL INVESTIGATION · LOCAL</span>
-          </div>
-          <Link href="/auth/login" className="text-xs font-medium text-muted-foreground transition hover:text-foreground">Sign in</Link>
-          <Link href="/auth/sign-up" className="rounded-lg bg-accent px-3.5 py-2.5 text-xs font-semibold text-[#06111c] transition hover:bg-[#80cbff]">Create account</Link>
-        </div>
-      </header>
+  return <main className="landing-shell min-h-screen overflow-hidden bg-[#101820] text-white"><div className="landing-noise" /><header className="relative z-10 mx-auto flex h-[82px] w-full max-w-[1480px] items-center justify-between border-b border-white/[0.1] px-5 sm:px-8 lg:px-12"><a href="#overview" className="flex items-center gap-3" aria-label="THREATLENS home"><span className="grid size-10 place-items-center rounded-xl border border-[#8ce9ff]/30 bg-[#8ce9ff]/10 text-[#8ce9ff] shadow-[0_0_32px_rgba(140,233,255,0.14)]"><Shield className="size-[19px]" /></span><span><span className="block text-[13px] font-bold tracking-[0.24em]">THREATLENS</span><span className="mt-1 block text-[9px] uppercase tracking-[0.2em] text-white/40">Trust intelligence</span></span></a><nav className="hidden items-center gap-7 text-[11px] text-white/55 md:flex" aria-label="Landing navigation"><a href="#platform" className="transition hover:text-white">Platform</a><a href="#readiness" className="transition hover:text-white">Readiness</a><a href={getApiDocsUrl()} target="_blank" rel="noreferrer" className="transition hover:text-white">API docs</a></nav><div className="flex items-center gap-3"><Link href="/auth/login" className="hidden text-xs font-medium text-white/60 transition hover:text-white sm:inline">Sign in</Link><Link href="/auth/sign-up" className="rounded-lg border border-[#8ce9ff]/30 bg-[#8ce9ff] px-3.5 py-2.5 text-xs font-bold text-[#101820] shadow-[0_8px_24px_rgba(140,233,255,0.16)] transition hover:-translate-y-0.5 hover:bg-[#b8f3ff]">Start investigating</Link></div></header>
 
-      <section id="overview" className="grid flex-1 content-center py-14 sm:py-20">
-        <div className="mx-auto w-full max-w-5xl">
-          <div className="mb-8 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
-            <span className="h-px w-7 bg-accent/70" />
-            Platform readiness
-          </div>
+    <section id="overview" className="relative z-10 mx-auto grid min-h-[680px] w-full max-w-[1480px] items-center gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[0.96fr_1.04fr] lg:px-12 lg:py-20"><div className="relative z-10 max-w-2xl"><div className="mb-7 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.27em] text-[#8ce9ff]"><span className="h-px w-9 bg-[#8ce9ff]" /> Security intelligence, made clear</div><h1 className="max-w-3xl text-[clamp(3.3rem,8vw,7.7rem)] font-semibold leading-[0.9] tracking-[-0.075em]">See the <span className="landing-gradient-text">signal</span><br />behind the threat.</h1><p className="mt-8 max-w-xl text-base leading-7 text-white/58 sm:text-lg">Investigate suspicious URLs, messages, and QR destinations with evidence-bound analysis that turns uncertainty into an actionable digital crime scene.</p><div className="mt-9 flex flex-wrap items-center gap-3"><Link href="/auth/sign-up" className="landing-primary-button inline-flex items-center gap-2 rounded-xl px-5 py-3.5 text-sm font-bold">Open your workspace <ArrowUpRight className="size-4" /></Link><a href="#platform" className="inline-flex items-center gap-2 rounded-xl border border-white/[0.15] bg-white/[0.045] px-5 py-3.5 text-sm font-medium text-white/75 transition hover:border-white/30 hover:bg-white/[0.09]">Explore the platform</a></div><div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-[10px] uppercase tracking-[0.16em] text-white/40"><span className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-[#7de0b2]" /> SSRF guarded</span><span className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-[#8ce9ff]" /> No scripts executed</span><span className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-[#ffd47a]" /> Evidence first</span></div></div><ThreatOrbit /></section>
 
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
-            <div>
-              <h1 className="max-w-2xl text-4xl font-semibold leading-[1.12] tracking-[-0.045em] sm:text-6xl">
-                Trust, made <span className="text-accent">observable.</span>
-              </h1>
-              <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-                Your threat intelligence workspace connects URL investigations with account-scoped evidence and clear risk explanations.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border bg-panel/70 p-5 sm:p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground">READY CHECKS</p>
-                  <p className="mt-2 text-3xl font-semibold tracking-tight">{readyCount}<span className="text-muted-foreground"> / 4</span></p>
-                </div>
-                <div className="grid size-12 place-items-center rounded-xl bg-accent/10 text-accent">
-                  {readyCount === 4 ? <ShieldCheck className="size-6" aria-hidden="true" /> : <CircleDashed className="size-6" aria-hidden="true" />}
-                </div>
-              </div>
-              <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-panel-raised">
-                <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${(readyCount / 4) * 100}%` }} />
-              </div>
-              <p className="mt-3 text-xs text-muted-foreground">
-                {readyCount === 4 ? "FastAPI, Supabase Auth, and secure scan persistence are configured." : "Finish the backend credentials and scan storage setup."}
-              </p>
-            </div>
-          </div>
+    <section id="platform" className="relative z-10 mx-auto w-full max-w-[1480px] px-5 pb-20 sm:px-8 lg:px-12"><div className="landing-section-label">A complete investigation surface</div><div className="mt-5 grid gap-4 md:grid-cols-3"><article className="landing-feature landing-card-hover md:col-span-2"><Globe2 className="size-6 text-[#8ce9ff]" /><h2>From URL to evidence</h2><p>Bounded DNS, redirect, TLS, identity, and reputation checks are assembled into one chronological investigation.</p><div className="feature-line"><span /><span /><span /><span /></div></article><article className="landing-feature landing-card-hover"><Fingerprint className="size-6 text-[#c4a7ff]" /><h2>Identity, not guesswork</h2><p>Typosquatting and brand mismatch signals are explained without treating similarity as proof.</p></article><article className="landing-feature landing-card-hover"><LockKeyhole className="size-6 text-[#7de0b2]" /><h2>Private by design</h2><p>Account-scoped records, protected credentials, and no automatic visits to QR destinations.</p></article><article className="landing-feature landing-card-hover md:col-span-2"><ScanSearch className="size-6 text-[#ffd47a]" /><h2>Clear decisions under pressure</h2><p>Risk levels preserve uncertainty and keep deterministic scanner evidence separate from optional AI interpretation.</p></article></div></section>
 
-          <div className="mt-12 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <StatusCard
-              icon={<Wifi className="size-[18px]" aria-hidden="true" />}
-              title="FastAPI"
-              detail={api.ok ? `Health check succeeded · ${api.data.service}` : api.error}
-              status={api.ok ? "online" : "offline"}
-              statusLabel={api.ok ? "Connected" : "Unavailable"}
-            />
-            <StatusCard
-              icon={<Fingerprint className="size-[18px]" aria-hidden="true" />}
-              title="Supabase Auth"
-              detail={authConfigured ? "Frontend Auth client credentials are present." : "Add the project URL and publishable key to frontend/.env.local."}
-              status={authConfigured ? "ready" : "setup"}
-              statusLabel={authConfigured ? "Configured" : "Needs setup"}
-            />
-            <StatusCard
-              icon={<Database className="size-[18px]" aria-hidden="true" />}
-              title="Supabase API"
-              detail={backendSupabaseConfigured ? "Backend Supabase public credentials are present." : "Add the project URL and publishable key to backend/.env."}
-              status={backendSupabaseConfigured ? "ready" : "setup"}
-              statusLabel={backendSupabaseConfigured ? "Configured" : "Needs setup"}
-            />
-            <StatusCard
-              icon={<Database className="size-[18px]" aria-hidden="true" />}
-              title="URL scan storage"
-              detail={scanPersistenceConfigured ? "Backend-only database access is ready for scan records." : "Add SUPABASE_SECRET_KEY to backend/.env to enable secure scan writes."}
-              status={scanPersistenceConfigured ? "ready" : "setup"}
-              statusLabel={scanPersistenceConfigured ? "Configured" : "Needs setup"}
-            />
-          </div>
+    <section id="readiness" className="relative z-10 mx-auto w-full max-w-[1480px] px-5 pb-20 sm:px-8 lg:px-12"><div className="landing-section-label">Workspace readiness</div><div className="mt-5 grid gap-5 lg:grid-cols-[0.72fr_1.28fr]"><div className="landing-card rounded-[24px] border border-white/[0.12] bg-white/[0.055] p-6 backdrop-blur-xl sm:p-8"><div className="flex items-start justify-between"><div><p className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/45">READY CHECKS</p><p className="mt-3 text-5xl font-semibold tracking-[-0.06em]">{readyCount}<span className="text-white/30"> / 4</span></p></div><span className="grid size-12 place-items-center rounded-2xl border border-[#8ce9ff]/20 bg-[#8ce9ff]/10 text-[#8ce9ff]">{readyCount === 4 ? <ShieldCheck className="size-6" /> : <CircleDashed className="size-6" />}</span></div><div className="mt-7 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-[#8ce9ff] to-[#788cff] transition-all" style={{ width: `${(readyCount / 4) * 100}%` }} /></div><p className="mt-4 text-xs leading-5 text-white/50">{readyCount === 4 ? "Core API, authentication, and secure scan persistence are ready." : "Complete the remaining environment setup before production use."}</p></div><div className="grid gap-4 sm:grid-cols-2"><ReadinessCard icon={Wifi} title="Investigation API" detail={api.ok ? `Health check succeeded · ${api.data.service}` : api.error} state={api.ok ? "ready" : "offline"} label={api.ok ? "Connected" : "Unavailable"} /><ReadinessCard icon={Fingerprint} title="Account security" detail={authConfigured ? "Supabase Auth client credentials are present." : "Authentication configuration is incomplete."} state={authConfigured ? "ready" : "setup"} label={authConfigured ? "Configured" : "Setup needed"} /><ReadinessCard icon={Database} title="Evidence storage" detail={backendSupabaseConfigured ? "Backend database credentials are available." : "Backend database credentials are incomplete."} state={backendSupabaseConfigured ? "ready" : "setup"} label={backendSupabaseConfigured ? "Configured" : "Setup needed"} /><ReadinessCard icon={LockKeyhole} title="Protected persistence" detail={scanPersistenceConfigured ? "Account-scoped scan records are ready." : "Secure scan persistence is not configured."} state={scanPersistenceConfigured ? "ready" : "setup"} label={scanPersistenceConfigured ? "Ready" : "Setup needed"} /></div></div><div className="mt-6 flex flex-col gap-4 rounded-2xl border border-white/[0.12] bg-white/[0.045] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-start gap-3"><span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg bg-[#7de0b2]/10 text-[#7de0b2]"><Check className="size-4" /></span><div><p className="text-sm font-medium">A safer starting point for every investigation</p><p className="mt-1 text-xs leading-5 text-white/45">No credentials are submitted to targets. Review evidence before acting.</p></div></div><a className="inline-flex shrink-0 items-center gap-2 text-xs font-semibold text-[#8ce9ff] transition hover:text-white" href={getApiDocsUrl()} target="_blank" rel="noreferrer">Read the API contract <ArrowUpRight className="size-3.5" /></a></div></section>
 
-          <div className="mt-7 flex flex-col gap-4 rounded-xl border border-border/80 bg-panel/80 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-            <div className="flex items-start gap-3">
-              <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
-                <Check className="size-4" aria-hidden="true" />
-              </span>
-              <div>
-                <p className="text-sm font-medium">URL investigation is ready to connect</p>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">URL scans use bounded network inspection and save evidence to your account. Message and QR analysis are still preview-only.</p>
-              </div>
-            </div>
-            <a className="inline-flex shrink-0 items-center gap-2 text-xs font-semibold text-accent transition hover:text-foreground" href={getApiDocsUrl()} target="_blank" rel="noreferrer">
-              Open API docs <ArrowUpRight className="size-3.5" aria-hidden="true" />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <footer className="flex min-h-14 items-center justify-between border-t border-border/70 text-[11px] text-muted-foreground">
-        <span>THREATLENS · TRUST INTELLIGENCE</span>
-        <span>URL SCAN BUILD</span>
-      </footer>
-    </main>
-  );
+    <section id="signal-map" className="relative z-10 mx-auto w-full max-w-[1480px] px-5 pb-20 sm:px-8 lg:px-12"><div className="landing-section-label">Inside every investigation</div><div className="flow-panel mt-5 grid gap-10 p-6 sm:p-9 lg:grid-cols-[0.85fr_1.15fr] lg:items-center"><div><h2 className="max-w-lg text-3xl font-semibold leading-tight tracking-[-0.05em] sm:text-4xl">Turn one suspicious link into a <span className="landing-gradient-text">defensible story.</span></h2><p className="mt-4 max-w-md text-sm leading-6 text-white/52">ThreatLens moves from the submitted signal to a clear evidence chain—without visiting page scripts or sending credentials to a target.</p><div className="mt-7 space-y-3"><div className="flow-step"><span className="flow-step-number">01</span><div><p className="text-sm font-semibold">Normalize the signal</p><p className="mt-1 text-[11px] text-white/45">URL, message, or QR content is bounded and validated.</p></div></div><div className="flow-step"><span className="flow-step-number">02</span><div><p className="text-sm font-semibold">Inspect the surface</p><p className="mt-1 text-[11px] text-white/45">DNS, redirects, TLS, identity, and patterns become evidence.</p></div></div><div className="flow-step"><span className="flow-step-number">03</span><div><p className="text-sm font-semibold">Explain the decision</p><p className="mt-1 text-[11px] text-white/45">Risk stays transparent, reviewable, and account-scoped.</p></div></div></div></div><div className="flow-stack" aria-label="Layered investigation evidence visualization" role="img"><div className="flow-layer flow-layer-one"><div className="flow-layer-bar"><span>Destination</span><span className="text-[#ffd47a]">Review</span></div><p className="mt-4 text-sm font-semibold">Redirect chain</p><div className="flow-layer-line" /></div><div className="flow-layer flow-layer-two"><div className="flow-layer-bar"><span>Identity</span><span className="text-[#c4a7ff]">Compared</span></div><p className="mt-4 text-sm font-semibold">Brand mismatch signals</p><div className="flow-layer-line" /></div><div className="flow-layer flow-layer-three"><div className="flow-layer-bar"><span>Risk engine</span><span className="text-[#7de0b2]">Evidence</span></div><p className="mt-4 text-sm font-semibold">Chronological report</p><div className="flow-layer-line" /></div></div></div></section>
+    <footer className="relative z-10 mx-auto flex min-h-16 w-full max-w-[1480px] items-center justify-between border-t border-white/[0.1] px-5 text-[10px] uppercase tracking-[0.14em] text-white/35 sm:px-8 lg:px-12"><span>THREATLENS · Trust intelligence</span><span>Investigate with evidence</span></footer>
+  </main>;
 }
-

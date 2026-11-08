@@ -55,7 +55,7 @@ export default async function ProfilePage() {
           </div>
         ) : profile ? (
           <>
-            <div className="mb-7 rounded-xl border border-border bg-[#0b1220] px-4 py-3.5">
+            <div className="glass-panel mb-7 rounded-xl border border-border px-4 py-3.5">
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Account email</p>
               <p className="mt-2 break-all text-sm text-foreground">{accountEmail ?? "Email unavailable"}</p>
             </div>

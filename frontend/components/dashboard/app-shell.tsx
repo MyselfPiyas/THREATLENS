@@ -95,14 +95,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[248px] flex-col overflow-y-auto border-r border-border/80 bg-[#0a111c] px-4 py-5 lg:flex">
+      <aside className="glass-panel fixed inset-y-0 left-0 z-30 hidden w-[248px] flex-col overflow-y-auto border-r border-border/80 px-4 py-5 lg:flex">
         <SidebarContent pathname={pathname} scanStorageReady={scanStorageReady} />
       </aside>
 
       {mobileOpen ? (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button className="absolute inset-0 bg-black/65" aria-label="Close navigation menu" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 flex w-[min(84vw,290px)] flex-col overflow-y-auto border-r border-border bg-[#0a111c] px-4 py-5 shadow-2xl">
+          <aside className="glass-panel absolute inset-y-0 left-0 flex w-[min(84vw,290px)] flex-col overflow-y-auto border-r border-border px-4 py-5 shadow-2xl">
             <button className="mb-5 ml-auto grid size-9 place-items-center rounded-lg border border-border text-muted-foreground" aria-label="Close menu" onClick={() => setMobileOpen(false)}><X className="size-4" /></button>
             <SidebarContent pathname={pathname} scanStorageReady={scanStorageReady} close={() => setMobileOpen(false)} />
           </aside>
@@ -110,7 +110,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       ) : null}
 
       <div className="min-h-screen lg:pl-[248px]">
-        <header className="sticky top-0 z-20 flex h-[66px] items-center justify-between border-b border-border/80 bg-background/90 px-4 backdrop-blur-xl sm:px-7 lg:px-9">
+        <header className="glass-panel sticky top-0 z-20 flex h-[66px] items-center justify-between border-b border-border/80 bg-background/75 px-4 backdrop-blur-xl sm:px-7 lg:px-9">
           <div className="flex min-w-0 items-center gap-3">
             <button onClick={() => setMobileOpen(true)} className="grid size-9 shrink-0 place-items-center rounded-lg border border-border text-muted-foreground lg:hidden" aria-label="Open navigation menu"><Menu className="size-4" /></button>
             <div className="min-w-0">
