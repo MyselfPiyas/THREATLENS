@@ -134,6 +134,17 @@ class ScanStore:
             raise RuntimeError("The scan database returned an invalid response.")
         return data
 
+    async def upsert_threat_indicators(self, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        data = await self._request(
+            "POST", "threat_indicators",
+            headers=self._admin_headers("resolution=merge-duplicates,return=representation"),
+            params={"on_conflict": "source,indicator_type,indicator_value"},
+            json=rows,
+        )
+        if not isinstance(data, list) or any(not isinstance(row, dict) for row in data):
+            raise RuntimeError("The scan database returned an invalid indicator response.")
+        return data
+
     async def upsert_relationship(self, relationship: dict[str, Any]) -> None:
         await self._request(
             "POST", "scan_relationships", headers=self._admin_headers("resolution=merge-duplicates,return=minimal"), json=relationship

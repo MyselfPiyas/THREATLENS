@@ -127,6 +127,7 @@ export async function analyzeQr(file: File, accessToken: string): Promise<QrAnal
 
 export function getIntelligenceOverview(accessToken: string): Promise<IntelligenceOverview> { return authenticatedRequest<IntelligenceOverview>("/intelligence/overview", accessToken); }
 export async function getIntelligenceIndicators(accessToken: string, search = ""): Promise<IntelligenceIndicator[]> { const result = await authenticatedRequest<{ items: IntelligenceIndicator[] }>(`/intelligence/indicators?page=1&page_size=50${search ? `&search=${encodeURIComponent(search)}` : ""}`, accessToken); return result.items; }
+export function refreshThreatIntelligence(accessToken: string): Promise<{ source: string; status: string; updated_at: string; indicators_upserted: number }> { return postJson("/intelligence/refresh", {}, accessToken); }
 export function getScamDna(scanId: string, accessToken: string): Promise<ScamDnaGraph> { return authenticatedRequest<ScamDnaGraph>(`/scam-dna/${encodeURIComponent(scanId)}`, accessToken); }
 export function analyzeScamDna(scanId: string, accessToken: string): Promise<ScamDnaGraph> { return postJson<ScamDnaGraph>(`/scam-dna/${encodeURIComponent(scanId)}/analyze`, {}, accessToken); }
 

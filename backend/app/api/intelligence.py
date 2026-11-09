@@ -20,6 +20,15 @@ async def intelligence_overview(principal: AuthenticatedPrincipal = Depends(get_
     return await ThreatIntelligenceService().overview()
 
 
+@router.post("/intelligence/refresh")
+async def refresh_intelligence(principal: AuthenticatedPrincipal = Depends(get_current_principal)) -> dict:
+    try:
+        result = await ThreatIntelligenceService().refresh_openphish()
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+    return result
+
+
 @router.get("/intelligence/indicators", response_model=IndicatorPage)
 async def intelligence_indicators(page: int = Query(1, ge=1), page_size: int = Query(25, ge=1, le=100), search: str | None = Query(None, max_length=120), indicator_type: str | None = Query(None), principal: AuthenticatedPrincipal = Depends(get_current_principal)) -> IndicatorPage:
     rows = await ThreatIntelligenceService().list_indicators(page, page_size, search, indicator_type)

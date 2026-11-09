@@ -21,6 +21,18 @@ Optional attribution variables:
 
 OpenRouter is the exclusive LLM provider for THREATLENS. Every future LLM-powered feature must call `backend/app/services/llm_service.py`; feature modules must not create provider clients, import an OpenAI SDK, or hardcode a model identifier. Deterministic validation, DNS, TLS, reputation, hashing, authorization, persistence, and other security decisions remain independent of the LLM. User content and external content are untrusted data, and OpenRouter unavailability must disable only the AI enhancement while preserving deterministic functionality.
 
+## Threat intelligence feed
+
+The protected FastAPI API can refresh the OpenPhish Community Feed through
+`POST /api/v1/intelligence/refresh`. It imports and persists source-attributed
+phishing URLs in `threat_indicators`; it never visits the listed destinations.
+The community feed is refreshed no more than once every 12 hours per running
+backend process. OpenPhish does not publish a numeric confidence value, so the
+stored confidence is an internal source-based indicator and is not shown as a
+provider-assigned score. Feed failures are reported as unavailable, not as a
+clean reputation result. The feed is provided under OpenPhish's published
+community-feed terms: https://www.openphish.com/phishing_feeds.html.
+
 ## Part 9: Trust Passports — off-chain only
 
 Passport creation snapshots persisted scan, finding, and timeline evidence into
